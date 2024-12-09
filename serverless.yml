@@ -1,0 +1,67 @@
+service: ${env:service, 'botmarket'}
+frameworkVersion: ">=1.35.0 <2.0.0"
+
+provider:
+  name: aws
+  memorySize: 128 # optional, in MB, default is 1024
+  stackTags:
+    service: ${self:service}
+    stackPurpose: ${env:stack_purpose_tag, 'manual'}
+  runtime: python3.9
+  region: ${opt:region, 'us-east-1'}
+  stage: ${opt:stage, 'dev'}
+  managedPolicyArns: "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess"
+  tracing: true
+  environment:
+    PYTHONPATH: "/opt/lib/python3.9/site-packages:src:/var/task/src:/var/runtime"
+
+custom:
+  state_stack: ${self:service}-${self:provider.stage}-state
+  deploymentSettings:
+    stages:
+      - staging
+      - main
+
+package:
+  exclude:
+    - ./**
+  include:
+    - "src/**"
+    - "resources/**"
+    - "!src/tests/**"
+
+layers:
+  requirements:
+    path: .venv
+    package:
+      exclude:
+        - "**"
+        - "!lib/python3.9/site-packages/**"
+        - "lib/python3.9/site-packages/pip/**"
+        - "lib/python3.9/site-packages/docutils/**"
+        - "lib/python3.9/site-packages/future/**"
+        - "lib/python3.9/site-packages/setuptools/**"
+
+plugins:
+  - serverless-iam-roles-per-function
+  - serverless-cloudformation-changesets
+  - serverless-step-functions
+  - serverless-pseudo-parameters
+
+functions:
+  bot_ordered:
+    handler: src.bot_handlers.bot_ordered
+    timeout: 20
+    layers:
+      - { Ref: RequirementsLambdaLayer }
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - execute-api:Invoke
+          - lambda:InvokeFunction
+        Resource: "*"
+      - Effect: Allow
+        Action:
+          - ssm:GetParameter
+        Resource: arn:aws:ssm:us-east-1:840590911230:parameter/*
+
