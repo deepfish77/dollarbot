@@ -26,30 +26,3 @@ def add_follow_up_review_question(
         }
     )
 
-
-# def update_user_accomplishments(
-#     table_name,
-#     date,
-#     time_stamp,
-#     name,
-#     approved,
-#     reviewers,
-#     commit_link,
-#     tickets,
-#     total_hrs,
-#     number_of_options,
-# ):
-#     table = session.Table(table_name)
-#     table.put_item(
-#         Item={
-#             "date": date,
-#             "timestamp": time_stamp,
-#             "name": name,
-#             "approved": approved,
-#             "reviewers": reviewers,
-#             "commit_link": commit_link,
-#             "tickets": tickets,
-#             "total_hrs": total_hrs,
-#             "number_of_options": number_of_options,
-#         }
-#     )
