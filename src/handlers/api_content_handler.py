@@ -4,7 +4,7 @@ import boto3
 import json
 import mimetypes
 from botocore.exceptions import ClientError
-from src.s3_file_uploader import upload_file_to_s3
+from src.utils.s3_file_uploader import upload_file_to_s3
 
 
 def upload_file_to_s3_handler(event, _):

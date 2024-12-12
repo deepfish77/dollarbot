@@ -1,7 +1,7 @@
 import boto3
 import functools
 from psycopg2 import sql
-import rds_connect
+import src.utils.rds_connect as rds_connect
 
 ssm = boto3.client("ssm")
 

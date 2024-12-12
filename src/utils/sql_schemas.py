@@ -1,7 +1,7 @@
 import boto3
 import functools
 from psycopg2 import sql
-import src.rds_connect as rds_connect
+import src.utils.rds_connect as rds_connect
 
 ssm = boto3.client("ssm")
 
@@ -38,24 +38,26 @@ BOT_SERVICE_SCHEMA = """CREATE TABLE IF NOT EXISTS bots.bot_service (
     bot_id SERIAL PRIMARY KEY,
     bot_name VARCHAR(50) NOT NULL,
     bot_external_id VARCHAR(255),
-    bot_creation_date TIMESTAMP,
+    bot_creation_date TIMESTAMP
 );"""
 
 BOT_TRANSACTIONS_SCHEMA = """CREATE TABLE IF NOT EXISTS bots.bot_transactions (
     transaction_id SERIAL PRIMARY KEY,
     stripe_id VARCHAR(50) NOT NULL,
-    stripe_details VARCHAR(255),
+    stripe_details VARCHAR(255)
 );"""
 
 BOT_PAYOUT_SCHEMA = """CREATE TABLE IF NOT EXISTS bots.bot_payout (
     payout_id SERIAL PRIMARY KEY,
     stripe_id VARCHAR(50) NOT NULL,
     stripe_details VARCHAR(255),
-    withdrawal_amount VARCHAR(50),
+    withdrawal_amount VARCHAR(50)
 );"""
 
 
 @create_db_table
 def create_table_from_schema():
     # Set the schema name and execute manually
-    return BOT_SERVICE_SCHEMA
+    return BOT_PAYOUT_SCHEMA
+
+create_table_from_schema()
