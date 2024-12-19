@@ -41,6 +41,15 @@ BOT_SERVICE_SCHEMA = """CREATE TABLE IF NOT EXISTS bots.bot_service (
     bot_creation_date TIMESTAMP
 );"""
 
+
+BOT_ORDER_SCHEMA = """CREATE TABLE IF NOT EXISTS bots.bot_order (
+    order_id SERIAL PRIMARY KEY,
+    bot_name VARCHAR(50) NOT NULL,
+    bot_external_id VARCHAR(255),
+    order_external_id VARCHAR(100),
+    order_by VARCHAR(100)
+);"""
+
 BOT_TRANSACTIONS_SCHEMA = """CREATE TABLE IF NOT EXISTS bots.bot_transactions (
     transaction_id SERIAL PRIMARY KEY,
     stripe_id VARCHAR(50) NOT NULL,
@@ -55,9 +64,38 @@ BOT_PAYOUT_SCHEMA = """CREATE TABLE IF NOT EXISTS bots.bot_payout (
 );"""
 
 
+BOT_COMPANY_PAYOUT_SCHEMA = """CREATE TABLE IF NOT EXISTS bots.company_payout (
+    payout_id SERIAL PRIMARY KEY,
+    stripe_id VARCHAR(50) NOT NULL,
+    stripe_details VARCHAR(255),
+    withdrawal_amount VARCHAR(50)
+);"""
+
+BOT_TRANSACTIONS_SCHEMA_UPDATE_1 = """ALTER TABLE bots.bot_transactions 
+    ADD COLUMN user_id VARCHAR(255),
+    ADD COLUMN bot_id VARCHAR(255),
+    ADD COLUMN transaction_status VARCHAR(100)
+;"""
+BOT_TRANSACTIONS_SCHEMA_UPDATE_2 = """ALTER TABLE bots.bot_transactions
+    ADD COLUMN external_transaction_id VARCHAR(100)
+;"""
+BOT_TRANSACTIONS_SCHEMA_UPDATE_3 = """ALTER TABLE bots.bot_transactions
+    ADD COLUMN external_order_id VARCHAR(100)
+;"""
+
+COMPANY_PAYOUT_SCHEMA_UPDATE_1 = """ALTER TABLE bots.bot_transactions 
+    ADD COLUMN user_id VARCHAR(255),
+    ADD COLUMN bot_id VARCHAR(255),
+    ADD COLUMN transaction_status VARCHAR(100)
+;"""
+
+BOT_ORDER_SCHEMA_1 = """ALTER TABLE bots.bot_order
+    ADD COLUMN order_status VARCHAR(100)
+;"""
+
 @create_db_table
 def create_table_from_schema():
     # Set the schema name and execute manually
-    return BOT_PAYOUT_SCHEMA
+    return BOT_ORDER_SCHEMA_1
 
 create_table_from_schema()
