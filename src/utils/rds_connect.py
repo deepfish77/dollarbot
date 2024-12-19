@@ -1,3 +1,4 @@
+import json
 import psycopg2
 import pandas as pd
 
@@ -33,13 +34,29 @@ class DbConnector:
             records = cursor.fetchall()
             return records
 
+    def get_records_headers(self, query):
+        with self.connect_to_db() as cursor:
+            cursor.execute(query)
+            records = cursor.fetchall()
+            headers = [desc[0] for desc in cursor.description]  # Extract column names
+            return {"headers": headers, "records": records}
+
+    def get_records_json(self, query):
+        with self.connect_to_db() as cursor:
+            cursor.execute(query)
+            records = cursor.fetchall()
+            headers = [desc[0] for desc in cursor.description]  # Extract column names
+            # Convert to JSON format
+            data = [dict(zip(headers, row)) for row in records]
+            return json.dumps(data)  # Convert to JSON string
+
     def get_records_into_df(self, query):
 
         with self.connect_to_db() as cursor:
             cursor.execute(query)
             names = [x[0] for x in cursor.description]
             records = cursor.fetchall()
-            returned_records =  pd.DataFrame(records, columns=names)
+            returned_records = pd.DataFrame(records, columns=names)
             return returned_records
 
     def connect_to_db_update(self):

@@ -49,8 +49,8 @@ plugins:
   - serverless-pseudo-parameters
 
 functions:
-  bot_ordered:
-    handler: src.bot_handlers.bot_ordered
+  create_order:
+    handler: src.handlers.bot_initialize_handlers.create_new_bot_order_handler
     timeout: 20
     layers:
       - { Ref: RequirementsLambdaLayer }
