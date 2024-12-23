@@ -50,7 +50,39 @@ plugins:
 
 functions:
   create_order:
-    handler: src.handlers.bot_initialize_handlers.create_new_bot_order_handler
+    handler: src.handlers.bot_api_handlers.create_new_bot_order_handler
+    timeout: 20
+    layers:
+      - { Ref: RequirementsLambdaLayer }
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - execute-api:Invoke
+          - lambda:InvokeFunction
+        Resource: "*"
+      - Effect: Allow
+        Action:
+          - ssm:GetParameter
+        Resource: arn:aws:ssm:us-east-1:840590911230:parameter/*
+
+  init_order:
+    handler: src.handlers.bot_api_handlers.initialize_order
+    timeout: 20
+    layers:
+      - { Ref: RequirementsLambdaLayer }
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - execute-api:Invoke
+          - lambda:InvokeFunction
+        Resource: "*"
+      - Effect: Allow
+        Action:
+          - ssm:GetParameter
+        Resource: arn:aws:ssm:us-east-1:840590911230:parameter/*
+
+  complete_order:
+    handler: src.handlers.bot_api_handlers.complete_order
     timeout: 20
     layers:
       - { Ref: RequirementsLambdaLayer }

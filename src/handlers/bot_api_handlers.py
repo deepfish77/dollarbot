@@ -62,7 +62,7 @@ def initialize_order(event, _):
         "headers": {
             "Content-Type": "application/json",
         },
-        "body": json.dumps(order_response),
+        "body": order_response,
     }
 
 
@@ -78,5 +78,5 @@ def complete_order(event, _):
         "headers": {
             "Content-Type": "application/json",
         },
-        "body": json.dumps(order_response),
+        "body":order_response,
     }

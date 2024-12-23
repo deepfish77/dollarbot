@@ -54,7 +54,7 @@ class BotOrderOps:
             }
 
         # Return as JSON
-        return json.dumps(response)
+        return response
 
     def order_completed(self, order_id):
         # Check the order
@@ -94,7 +94,7 @@ class BotOrderOps:
             }
 
         # Return as JSON
-        return json.dumps(response)
+        return response
 
 
 # BotOrderOps(
