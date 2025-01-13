@@ -11,14 +11,25 @@ from src.utils.enums import ORDER_STATUS
 def create_new_bot_order_handler(event, _):
     bot_name = event["bot_name"]
     bot_external_id = event["bot_external_id"]
+    receipt_id = event["receipt_id"]
     order_external_id = event["order_external_id"]
+    order_status = event["order_status"]
     order_by = event["order_by"]
+
+    print("DEBUGGING -- bot_name: ", bot_name)
+    print("bot_external_id: ", bot_external_id)
+    print("order_external_id: ", order_external_id)
+    print("order_status: ", order_status)
+    print("order_by: ", order_by)
+    print("receipt_id: ", receipt_id)
+
     create_status = create_new_bot_order(
         bot_name=bot_name,
         bot_external_id=bot_external_id,
         order_external_id=order_external_id,
+        receipt_id=receipt_id,
         order_by=order_by,
-        order_status=ORDER_STATUS.NEW.name,
+        order_status=ORDER_STATUS.INITIALIZED.name,
     )
     return {
         "statusCode": 200,
@@ -39,7 +50,7 @@ def create_new_bot_transaction_handler(event, _):
         stripe_details=stripe_details,
         user_id=user_id,
         bot_id=bot_id,
-        transaction_status=ORDER_STATUS.NEW.name,
+        transaction_status=ORDER_STATUS.INITIALIZED.name,
     )
     return {
         "statusCode": 200,
@@ -78,5 +89,5 @@ def complete_order(event, _):
         "headers": {
             "Content-Type": "application/json",
         },
-        "body":order_response,
+        "body": order_response,
     }

@@ -92,10 +92,28 @@ COMPANY_PAYOUT_SCHEMA_UPDATE_1 = """ALTER TABLE bots.bot_transactions
 BOT_ORDER_SCHEMA_1 = """ALTER TABLE bots.bot_order
     ADD COLUMN order_status VARCHAR(100)
 ;"""
+BOT_ORDER_SCHEMA_2 = """ALTER TABLE bots.bot_order
+    ADD COLUMN receipt_id VARCHAR(100)
+;"""
+
+TRANSFER_SCHEMA = """CREATE TABLE bots.transfers (
+    id SERIAL PRIMARY KEY,
+    customer_external_id VARCHAR(50) NOT NULL,
+    transfer_id VARCHAR(50) NOT NULL,
+    connected_account_id VARCHAR(50) NOT NULL,
+    amount INTEGER NOT NULL,
+    currency VARCHAR(10) NOT NULL,
+    description TEXT,
+    status VARCHAR(20) NOT NULL,
+    failure_reason TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);"""
+
 
 @create_db_table
 def create_table_from_schema():
     # Set the schema name and execute manually
-    return BOT_ORDER_SCHEMA_1
+    return TRANSFER_SCHEMA
 
 create_table_from_schema()

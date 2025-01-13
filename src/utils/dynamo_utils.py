@@ -3,10 +3,10 @@ import boto3
 session = boto3.resource("dynamodb")
 
 
-def get_question(question):
+def get_by_id(key_id, key, table_name):
 
-    table = session.Table("follow_up_questions")
-    returned_question = table.get_item(Key={"question": question})
+    table = session.Table(table_name)
+    returned_question = table.get_item(Key={key: key_id})
     print("question", returned_question)
     return returned_question
 
@@ -14,15 +14,12 @@ def get_question(question):
 # get_user("deepfish+123@gmail.com")
 
 
-def add_follow_up_review_question(
-    category, question, feature_name, table_name="follow_up_questions"
-):
+def add_ledger(previous, current, obj, table_name="transactions_ledger"):
     table = session.Table(table_name)
     table.put_item(
         Item={
-            "category": category,
-            "question": question,
-            "feature_name": feature_name,
+            "previous": previous,
+            "current": current,
+            "object": obj,
         }
     )
-

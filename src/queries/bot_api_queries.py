@@ -1,9 +1,5 @@
-import json
 from src.utils.rds_instance import get_rds_instance as rds_connector
-from src.utils.data_utils import (
-    set_results_json_api_resp,
-    set_results_for_single_item_response,
-)
+
 
 rds_db = rds_connector()
 
@@ -11,7 +7,12 @@ rds_db = rds_connector()
 def create_bot_service(bot_id, bot_name, bot_external_id):
     query = f"""INSERT INTO bots.bot_service (bot_id,bot_name,bot_external_id)
     VALUES ('{bot_id}','{bot_name}','{bot_external_id}')"""
-    rds_db.update_records(query=query)
+    try:
+        rds_db.update_records(query)
+        return True
+    except Exception as e:
+        print("Failed to create new bot service with exception: ", e)
+        return False
 
 
 def create_new_transaction(
@@ -28,10 +29,11 @@ def create_new_transaction(
 
 
 def create_new_bot_order(
-    bot_name, bot_external_id, order_external_id, order_by, order_status
+    bot_name, bot_external_id, order_external_id, receipt_id, order_by, order_status
 ):
-    query = f"""INSERT INTO bots.bot_order (bot_name,bot_external_id,order_external_id,order_by,order_status)
-    VALUES ('{bot_name}','{bot_external_id}','{order_external_id}','{order_by}','{order_status}')"""
+    query = f"""INSERT INTO bots.bot_order (bot_name, bot_external_id, order_external_id, receipt_id, order_by, order_status)
+    VALUES ('{bot_name}','{bot_external_id}','{order_external_id}','{receipt_id}','{order_by}','{order_status}')"""
+    print("query create_new_bot_order", query)
     try:
         rds_db.update_records(query)
         return True
@@ -50,15 +52,6 @@ def update_transaction_status(transaction_status, transaction_id):
         return False
 
 
-def create_new_developer_payout(stripe_id, stripe_details, withdrawal_amount):
-    query = f""" INSERT INTO bots.bot_payout (stripe_id,stripe_details,withdrawal_amount) 
-    VALUES ('{stripe_id}','{stripe_details}','{withdrawal_amount}')"""
-    try:
-        rds_db.update_records(query)
-        return True
-    except Exception as e:
-        print("Failed to create new developer payout with the exception: ", e)
-        return False
 
 
 def get_transaction_by_id(order_external_id, bot_id):
@@ -71,7 +64,7 @@ def get_transaction_by_id(order_external_id, bot_id):
 def get_order_by_id(order_external_id):
     query = f"""SELECT * from bots.bot_order WHERE order_external_id ='{order_external_id}'"""
     records = rds_db.get_records_json(query=query)
-    # print("records: ", records)
+    print(f" query {query}, get_order_by_id records: ", records)
     return records
 
 
@@ -81,5 +74,8 @@ def update_order_status(order_external_id, order_status):
         rds_db.update_records(query)
         return True
     except Exception as e:
-        print(f"Failed to update {order_external_id} , order to status {order_status}, with exception:  ", e)
+        print(
+            f"Failed to update {order_external_id} , order to status {order_status}, with exception:  ",
+            e,
+        )
         return False

@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from retrying import retry
+# from retrying import retry
 import requests
 
 import boto3
@@ -130,7 +130,7 @@ def make_request(
             json=json,
             timeout=timeout,
         )
-        print("status_code", response.status_code)
+        print("status_code", response.json())
 
         if response.status_code:
             status_code = response.status_code
@@ -150,6 +150,6 @@ def make_request(
     return response
 
 
-@retry(wait_exponential_multiplier=1000, wait_exponential_max=32000)
-def get_call_retries(url, header, params={}):
-    return get_call(url, header, params)
+# @retry(wait_exponential_multiplier=1000, wait_exponential_max=32000)
+# def get_call_retries(url, header, params={}):
+#     return get_call(url, header, params)
