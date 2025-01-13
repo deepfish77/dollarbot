@@ -1,5 +1,10 @@
+import logging
 from src.utils.rds_instance import get_rds_instance as rds_connector
 from src.utils.enums import TransferStatus
+
+# Initialize logger
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 
 rds_db = rds_connector()
@@ -22,10 +27,16 @@ def insert_transfer(
         VALUES ('{transfer_id}', '{connected_account_id}', {amount}, '{currency}', '{description}', '{status}', '{failure_reason}');
     """
     try:
+        logger.info(
+            f"attempting to create transfer  {connected_account_id}, with amount {amount}"
+        )
         rds_db.update_records(query)
+        logger.info(
+            f"user transfer inserted successfully for {connected_account_id}, with amount {amount}"
+        )
         return True
     except Exception as e:
-        print("Failed to insert transfer record with the exception: ", e)
+        logger.error(f"Failed to insert transfer record with the exception: {e}")
         return False
 
 
@@ -43,10 +54,14 @@ def update_transfer_status(transfer_id: str, status: TransferStatus):
         WHERE transfer_id = '{transfer_id}';
     """
     try:
+        logger.info(
+            f"attempting to update transfer  {transfer_id}, with status {status}"
+        )
         rds_db.update_records(query)
+        logger.info(f"successfully updated  {transfer_id}, with status {status}")
         return True
     except Exception as e:
-        print("Failed to update transfer status with the exception: ", e)
+        logger.error(f"Failed to update transfer status with the exception: {e}")
         return False
 
 
@@ -144,3 +159,31 @@ def get_failed_transfers():
     except Exception as e:
         print("Failed to get failed transfers with the exception: ", e)
         return []
+
+
+def add_stripe_account_to_user(user_id, stripe_account):
+    """
+    Adds the Stripe account details to the user record in the database.
+
+    :param user_id: The ID of the user in your database.
+    :param stripe_account: The Stripe account object returned by the API.
+    """
+    stripe_account_id = stripe_account["id"]
+    charges_enabled = stripe_account["charges_enabled"]
+    payouts_enabled = stripe_account["payouts_enabled"]
+
+    query = f"""
+        UPDATE users.users
+        SET stripe_account_id = '{stripe_account_id}',
+            charges_enabled = {charges_enabled},
+            payouts_enabled = {payouts_enabled}
+        WHERE id = '{user_id}';
+    """
+
+    try:
+        rds_db.update_records(query)
+        print("Stripe account details added to user record.")
+        return True
+    except Exception as e:
+        print("Failed to update user record with the exception: ", e)
+        return False

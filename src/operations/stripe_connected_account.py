@@ -1,10 +1,12 @@
 import logging
+from typing import Optional, Dict
 import stripe
 import boto3
-from typing import Optional, Dict
 
-# Initialize AWS SSM client
 ssm = boto3.client("ssm")
+# Initialize logger
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 # Fetch Stripe API key from SSM Parameter Store
 try:
@@ -13,11 +15,8 @@ try:
     ]["Value"]
     stripe.api_key = stripe_api_key
 except Exception as e:
+    logger.error(f"Error fetching Stripe API key from SSM:{e}")
     raise RuntimeError(f"Error fetching Stripe API key from SSM: {e}")
-
-# Initialize logger
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
 
 
 class StripeConnectedAccountService:

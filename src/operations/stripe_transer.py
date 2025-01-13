@@ -5,17 +5,18 @@ from typing import Optional, Dict
 
 # Initialize AWS SSM client
 ssm = boto3.client("ssm")
+# Initialize logger
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+
 
 # Fetch Stripe API key from SSM Parameter Store
 try:
     stripe_api_key = ssm.get_parameter(Name="/stripe/api_key", WithDecryption=True)["Parameter"]["Value"]
     stripe.api_key = stripe_api_key
 except Exception as e:
+    
     raise RuntimeError(f"Error fetching Stripe API key from SSM: {e}")
-
-# Initialize logger
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
 
 
 class StripeTransferService:

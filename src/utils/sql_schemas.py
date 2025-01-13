@@ -110,10 +110,18 @@ TRANSFER_SCHEMA = """CREATE TABLE bots.transfers (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );"""
 
+USERS_SCHEMA_UPDATE_STRIPE = """ALTER TABLE users.users
+ADD COLUMN stripe_account_id VARCHAR(50),
+ADD COLUMN charges_enabled BOOLEAN DEFAULT FALSE,
+ADD COLUMN payouts_enabled BOOLEAN DEFAULT FALSE,
+ADD COLUMN account_status VARCHAR(20) DEFAULT 'pending',
+ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;"""
+
 
 @create_db_table
 def create_table_from_schema():
     # Set the schema name and execute manually
-    return TRANSFER_SCHEMA
+    return USERS_SCHEMA_UPDATE_STRIPE
+
 
 create_table_from_schema()
