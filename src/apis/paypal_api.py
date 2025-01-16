@@ -1,20 +1,37 @@
-import requests
 import logging
+import os
+import requests
 import boto3
+
 
 logger = logging.getLogger(__name__)
 logging.getLogger().setLevel(logging.INFO)
 
+
 class PayPalApiService:
     """
-    Handles PayPal API interactions for account linking and payments.
+    Handles PayPal API interactions (Sandbox or Production).
     """
 
-    def __init__(self, mode="sandbox"):
+    def __init__(self):
         self.ssm = boto3.client("ssm")
-        self.client_id = self.get_ssm_parameter("/paypal/client_id")
-        self.client_secret = self.get_ssm_parameter("/paypal/client_secret")
-        self.base_url = "https://api.sandbox.paypal.com" if mode == "sandbox" else "https://api.paypal.com"
+        self.stage = os.getenv("STAGE", "main")  # Default to "main"
+        self.mode = self.get_ssm_parameter(
+            f"/paypal/{self.stage}/mode"
+        )  # Get mode from SSM
+
+        # Select the correct credentials based on mode
+        self.client_id = self.get_ssm_parameter(f"/paypal/{self.stage}/client_id")
+        self.client_secret = self.get_ssm_parameter(
+            f"/paypal/{self.stage}/client_secret"
+        )
+
+        # Set API URL based on mode
+        self.base_url = (
+            "https://api.sandbox.paypal.com"
+            if self.mode == "sandbox"
+            else "https://api.paypal.com"
+        )
 
         self.access_token = self.get_access_token()
 
@@ -34,54 +51,9 @@ class PayPalApiService:
         auth = (self.client_id, self.client_secret)
         data = {"grant_type": "client_credentials"}
 
-        response = requests.post(url, headers=headers, auth=auth, data=data)
+        response = requests.post(url, headers=headers, auth=auth, data=data, timeout=20)
         response.raise_for_status()
 
         access_token = response.json().get("access_token")
-        logger.info("Successfully retrieved PayPal access token.")
+        logger.info("Successfully retrieved PayPal access token in %s mode.", self.mode)
         return access_token
-
-    def create_partner_referral(self, user_id):
-        """
-        Create a partner referral link to onboard a user to PayPal.
-        """
-        url = f"{self.base_url}/v2/customer/partner-referrals"
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.access_token}",
-        }
-        payload = {
-            "tracking_id": user_id,
-            "operations": [
-                {
-                    "operation": "API_INTEGRATION",
-                    "api_integration_preference": {
-                        "rest_api_integration": {
-                            "integration_method": "PAYPAL",
-                            "integration_type": "THIRD_PARTY",
-                            "third_party_details": {
-                                "features": ["PAYMENT", "REFUND"],
-                            },
-                        }
-                    },
-                }
-            ],
-            "partner_config_override": {
-                "return_url": "https://your-platform.com/onboarding-success",
-                "return_url_description": "The URL to return the merchant after PayPal onboarding.",
-            },
-            "products": ["EXPRESS_CHECKOUT"],
-            "legal_consents": [
-                {
-                    "type": "SHARE_DATA_CONSENT",
-                    "granted": True,
-                }
-            ],
-        }
-
-        response = requests.post(url, headers=headers, json=payload)
-        response.raise_for_status()
-
-        referral_url = response.json().get("links", [])[1]["href"]
-        logger.info("Successfully created partner referral link.")
-        return referral_url

@@ -117,11 +117,92 @@ ADD COLUMN payouts_enabled BOOLEAN DEFAULT FALSE,
 ADD COLUMN account_status VARCHAR(20) DEFAULT 'pending',
 ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;"""
 
+EXTERNAL_ACCOUNTS = """CREATE TABLE bots.external_accounts (
+    id SERIAL PRIMARY KEY,
+    account_id VARCHAR(50) NOT NULL,
+    external_account_id VARCHAR(50) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (account_id, external_account_id)
+);
+"""
+
+COMLIANCE_ISSUES = """CREATE TABLE bots.compliance_issues (
+    id SERIAL PRIMARY KEY,
+    account_id VARCHAR(50) NOT NULL,
+    issue_type VARCHAR(50) NOT NULL,
+    description TEXT,
+    status VARCHAR(20) DEFAULT 'open',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (account_id, issue_type)
+);"""
+
+
+PAYPAL_BUNDLE = """-- Table for PayPal Users
+CREATE TABLE paypal_users (
+    id SERIAL PRIMARY KEY,
+    user_id VARCHAR(255) NOT NULL UNIQUE,
+    paypal_email VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table for PayPal Transactions
+CREATE TABLE bots.paypal_transactions (
+    id SERIAL PRIMARY KEY,
+    transaction_id VARCHAR(255) NOT NULL UNIQUE,
+    user_id VARCHAR(255) NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table for PayPal Payouts
+CREATE TABLE bots.paypal_payouts (
+    id SERIAL PRIMARY KEY,
+    payout_id VARCHAR(255) NOT NULL UNIQUE,
+    user_id VARCHAR(255) NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table for Failed PayPal Payouts
+CREATE TABLE bots.failed_paypal_payouts (
+    id SERIAL PRIMARY KEY,
+    payout_id VARCHAR(255) NOT NULL,
+    user_id VARCHAR(255) NOT NULL,
+    failure_reason TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table for PayPal Disputes
+CREATE TABLE bots.paypal_disputes (
+    id SERIAL PRIMARY KEY,
+    dispute_id VARCHAR(255) NOT NULL UNIQUE,
+    user_id VARCHAR(255) NOT NULL,
+    transaction_id VARCHAR(255) NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    reason TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+"""
+PAYPAL_FAILED_PAYOURS = """CREATE TABLE IF NOT EXISTS bots.failed_payouts (
+    payout_id VARCHAR(255) PRIMARY KEY,      -- Unique ID for the payout
+    user_id VARCHAR(255) NOT NULL,           -- The ID of the user who was supposed to receive the payout
+    amount DECIMAL(10,2) NOT NULL,           -- The amount that was supposed to be paid
+    failure_reason TEXT NOT NULL,            -- Reason why the payout failed
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- Timestamp of failure
+);
+"""
 
 @create_db_table
 def create_table_from_schema():
     # Set the schema name and execute manually
-    return USERS_SCHEMA_UPDATE_STRIPE
+    return PAYPAL_FAILED_PAYOURS
 
 
 create_table_from_schema()

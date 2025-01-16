@@ -9,7 +9,7 @@ provider:
     stackPurpose: ${env:stack_purpose_tag, 'manual'}
   runtime: python3.9
   region: ${opt:region, 'us-east-1'}
-  stage: ${opt:stage, 'dev'}
+  stage: ${opt:stage, 'main'}
   managedPolicyArns: "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess"
   tracing: true
   environment:

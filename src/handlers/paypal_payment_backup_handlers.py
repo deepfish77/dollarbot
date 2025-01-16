@@ -1,5 +1,5 @@
 import logging
-from src.operations.paypal_service import PayPalService
+from src.operations.paypal_payment_backup_service import PayPalService
 from src.operations.paypal_user_service import PayPalUserService
 
 
@@ -14,6 +14,7 @@ paypal_service = PayPalService()
 def create_paypal_payment_handler(event, _):
     """
     Lambda handler to create a new PayPal payment.
+    This is a backup functionality
     """
     body = event["body"]
     user_id = body["user_id"]

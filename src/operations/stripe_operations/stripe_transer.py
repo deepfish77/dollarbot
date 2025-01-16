@@ -12,10 +12,13 @@ logging.basicConfig(level=logging.INFO)
 
 # Fetch Stripe API key from SSM Parameter Store
 try:
-    stripe_api_key = ssm.get_parameter(Name="/stripe/api_key", WithDecryption=True)["Parameter"]["Value"]
+    # Make the parameters use environment variables
+    stripe_api_key = ssm.get_parameter(Name="/stripe/secret_dev", WithDecryption=True)[
+        "Parameter"
+    ]["Value"]
     stripe.api_key = stripe_api_key
 except Exception as e:
-    
+
     raise RuntimeError(f"Error fetching Stripe API key from SSM: {e}")
 
 
@@ -25,7 +28,12 @@ class StripeTransferService:
     """
 
     @staticmethod
-    def create_transfer(amount: int, connected_account_id: str, currency: str = "usd", description: Optional[str] = None) -> Optional[str]:
+    def create_transfer(
+        amount: int,
+        connected_account_id: str,
+        currency: str = "usd",
+        description: Optional[str] = None,
+    ) -> Optional[str]:
         """
         Create a transfer to a connected account.
 
@@ -36,15 +44,20 @@ class StripeTransferService:
         :return: The transfer ID if successful, None otherwise.
         """
         try:
-            logger.info("Creating transfer of %d %s to account %s", amount, currency, connected_account_id)
+            logger.info(
+                "Creating transfer of %d %s to account %s",
+                amount,
+                currency,
+                connected_account_id,
+            )
             transfer = stripe.Transfer.create(
                 amount=amount,
                 currency=currency,
                 destination=connected_account_id,
-                description=description
+                description=description,
             )
-            logger.info("Transfer created successfully: %s", transfer['id'])
-            return transfer['id']
+            logger.info("Transfer created successfully: %s", transfer["id"])
+            return transfer["id"]
         except stripe.error.StripeError as e:
             logger.error("Stripe API error: %s", e.user_message)
         except Exception as e:
@@ -83,52 +96,6 @@ class StripeTransferService:
             transfers = stripe.Transfer.list(limit=limit)
             logger.info("Transfers listed successfully")
             return transfers
-        except stripe.error.StripeError as e:
-            logger.error("Stripe API error: %s", e.user_message)
-        except Exception as e:
-            logger.error("Unexpected error: %s", e)
-        return None
-
-    @staticmethod
-    def create_payout(amount: int, connected_account_id: str, currency: str = "usd", description: Optional[str] = None) -> Optional[str]:
-        """
-        Create a payout to a bank account or debit card from a connected account.
-
-        :param amount: Amount to payout in the smallest currency unit (e.g., cents).
-        :param connected_account_id: The Stripe connected account ID.
-        :param currency: The currency (default is USD).
-        :param description: Optional description for the payout.
-        :return: The payout ID if successful, None otherwise.
-        """
-        try:
-            logger.info("Creating payout of %d %s to account %s", amount, currency, connected_account_id)
-            payout = stripe.Payout.create(
-                amount=amount,
-                currency=currency,
-                destination=connected_account_id,
-                description=description,
-                stripe_account=connected_account_id
-            )
-            logger.info("Payout created successfully: %s", payout['id'])
-            return payout['id']
-        except stripe.error.StripeError as e:
-            logger.error("Stripe API error: %s", e.user_message)
-        except Exception as e:
-            logger.error("Unexpected error: %s", e)
-        return None
-
-    @staticmethod
-    def check_balance() -> Optional[Dict]:
-        """
-        Check the balance of the platform account.
-
-        :return: A dictionary containing balance details, or None if an error occurs.
-        """
-        try:
-            logger.info("Checking platform account balance")
-            balance = stripe.Balance.retrieve()
-            logger.info("Balance retrieved successfully")
-            return balance
         except stripe.error.StripeError as e:
             logger.error("Stripe API error: %s", e.user_message)
         except Exception as e:

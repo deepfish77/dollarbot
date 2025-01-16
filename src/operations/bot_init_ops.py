@@ -10,6 +10,7 @@ from src.queries.bot_api_queries import (
 
 # Initialize logger
 logger = logging.getLogger(__name__)
+logging.getLogger().setLevel(logging.INFO)
 
 class BotOrderOps:
     def __init__(self, bot_id, user_id):
@@ -81,7 +82,6 @@ class BotOrderOps:
                 },
             }
 
-        # Return as JSON
         return response
 
     def order_completed(self, order_id):
@@ -112,8 +112,8 @@ class BotOrderOps:
 
                 # Create a new transaction
                 create_new_transaction(
-                    stripe_id="123",
-                    stripe_details="123",
+                    payout_id="123",
+                    payout_details="123",
                     user_id=self.user_id,
                     bot_id=self.bot_id,
                     transaction_status=TRANSACTION_STATUS.COMPLETED.name,
@@ -141,5 +141,4 @@ class BotOrderOps:
                 },
             }
 
-        # Return as JSON
         return response

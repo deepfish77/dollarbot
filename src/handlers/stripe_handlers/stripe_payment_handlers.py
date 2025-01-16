@@ -1,6 +1,6 @@
 # Lambda handler to create a transfer
 import json
-from src.operations.stripe_transer import StripeTransferService
+from src.operations.stripe_operations.stripe_transer import StripeTransferService
 
 
 def create_transfer_handler(event, _):

@@ -3,6 +3,7 @@ from src.queries.wallet_queries import check_balance, deposit, deduct
 
 # Initialize logger
 logger = logging.getLogger(__name__)
+logging.getLogger().setLevel(logging.INFO)
 
 
 class WalletService:

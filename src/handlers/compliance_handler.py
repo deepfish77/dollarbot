@@ -1,5 +1,5 @@
 import json
-from src.operations.stripe_webhook import StripeWebhookService
+from src.operations.stripe_operations.stripe_webhook import StripeWebhookService
 
 def compliance_handler(event, _):
     """

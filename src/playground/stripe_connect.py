@@ -5,7 +5,7 @@ import boto3
 
 ssm = boto3.client("ssm")
 
-stripe_api_key = ssm.get_parameter(Name="/stripe/api_key", WithDecryption=True)[
+stripe_api_key = ssm.get_parameter(Name="/stripe/secret_dev", WithDecryption=True)[
     "Parameter"
 ]["Value"]
 
@@ -42,15 +42,15 @@ import stripe
 
 ssm = boto3.client("ssm")
 
-stripe_api_key = ssm.get_parameter(Name="/stripe/api_key", WithDecryption=True)[
+stripe_api_key = ssm.get_parameter(Name="/stripe/secret_dev", WithDecryption=True)[
     "Parameter"
 ]["Value"]
 
 # Set your Stripe secret key
 stripe.api_key = stripe_api_key
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+logging.getLogger().setLevel(logging.INFO)
 
 
 

@@ -1,8 +1,9 @@
 import logging
-from wallet_service import WalletService
+from src.operations.stripe_operations.wallet_service import WalletService
 
 # Initialize logger
 logger = logging.getLogger(__name__)
+logging.getLogger().setLevel(logging.INFO)
 wallet_service = WalletService()
 
 

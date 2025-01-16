@@ -1,6 +1,6 @@
 import logging
 import json
-from src.operations.stripe_connected_account import StripeConnectedAccountService
+from src.operations.stripe_operations.stripe_connected_account import StripeConnectedAccountService
 from src.queries.stripe_ops_queries import insert_transfer
 from src.queries.stripe_ops_queries import add_stripe_account_to_user
 
