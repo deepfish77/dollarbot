@@ -14,6 +14,12 @@ provider:
   tracing: true
   environment:
     PYTHONPATH: "/opt/lib/python3.9/site-packages:src:/var/task/src:/var/runtime"
+    STAGE: ${self:provider.stage}
+    # PAYPAL_API_URL: ${ssm:/paypal/${self:provider.stage}/api_url}
+    PAYPAL_SECRET: ${ssm:/paypal/${self:provider.stage}/secret}
+    PAYPAL_CLIENT_ID: ${ssm:/paypal/${self:provider.stage}/client_id}
+    # WEBHOOK_RETURN_URL: ${ssm:/your-app/${self:provider.stage}/webhook_return_url}
+    # RETURN_URL: ${ssm:/your-app/${self:provider.stage}/return_url}
 
 custom:
   state_stack: ${self:service}-${self:provider.stage}-state
@@ -50,7 +56,7 @@ plugins:
 
 functions:
   create_order:
-    handler: src.handlers.bot_api_handlers.create_new_bot_order_handler
+    handler: src.handlers.bot_order_handlers.create_new_bot_order_handler
     timeout: 20
     layers:
       - { Ref: RequirementsLambdaLayer }
@@ -66,7 +72,7 @@ functions:
         Resource: arn:aws:ssm:us-east-1:840590911230:parameter/*
 
   init_order:
-    handler: src.handlers.bot_api_handlers.initialize_order
+    handler: src.handlers.bot_order_handlers.initialize_order
     timeout: 20
     layers:
       - { Ref: RequirementsLambdaLayer }
@@ -82,7 +88,7 @@ functions:
         Resource: arn:aws:ssm:us-east-1:840590911230:parameter/*
 
   complete_order:
-    handler: src.handlers.bot_api_handlers.complete_order
+    handler: src.handlers.bot_order_handlers.complete_order
     timeout: 20
     layers:
       - { Ref: RequirementsLambdaLayer }
@@ -96,4 +102,52 @@ functions:
         Action:
           - ssm:GetParameter
         Resource: arn:aws:ssm:us-east-1:840590911230:parameter/*
+
+  cre_connected_account:
+    handler: src.handlers.stripe_user_handlers.create_connected_account_handler
+    timeout: 20
+    layers:
+      - { Ref: RequirementsLambdaLayer }
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - execute-api:Invoke
+          - lambda:InvokeFunction
+        Resource: "*"
+      - Effect: Allow
+        Action:
+          - ssm:GetParameter
+        Resource: arn:aws:ssm:us-east-1:840590911230:parameter/*
+  make_transfer:
+    handler: src.handlers.stripe_payment_handlers.create_transfer_handler
+    timeout: 20
+    layers:
+      - { Ref: RequirementsLambdaLayer }
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - execute-api:Invoke
+          - lambda:InvokeFunction
+        Resource: "*"
+      - Effect: Allow
+        Action:
+          - ssm:GetParameter
+        Resource: arn:aws:ssm:us-east-1:840590911230:parameter/*
+  user_balance_handler:
+    handler: src.handlers.user_balance_handler.user_balance_handler
+    timeout: 20
+    layers:
+      - { Ref: RequirementsLambdaLayer }
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - execute-api:Invoke
+          - lambda:InvokeFunction
+        Resource: "*"
+      - Effect: Allow
+        Action:
+          - ssm:GetParameter
+        Resource: arn:aws:ssm:us-east-1:840590911230:parameter/*
+
+
 

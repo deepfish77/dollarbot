@@ -16,7 +16,7 @@ def create_connected_account_handler(event, _):
         logger.info("Connected account created successfully in stripe: %s", account)
         print("the account that was created is: ", account)
         # Register the account in backend
-        add_stripe_account_to_user(account=account,)
+        add_stripe_account_to_user(email, account)
 
         return {"statusCode": 200, "body": json.dumps({"account_id": account.id})}
     except Exception as e:

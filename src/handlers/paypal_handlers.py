@@ -5,6 +5,7 @@ from src.operations.paypal_user_service import PayPalUserService
 
 # Initialize logger
 logger = logging.getLogger(__name__)
+logging.getLogger().setLevel(logging.INFO)
 
 # Initialize PayPal service
 paypal_service = PayPalService()
@@ -45,7 +46,7 @@ def update_paypal_transaction_status_handler(event, _):
         status,
     )
 
-    success = paypal_service.update_transaction_status(transaction_id, status)
+    success = paypal_service.update_paypal_transaction_status(transaction_id, status)
     if success:
         return {
             "statusCode": 200,
@@ -59,10 +60,10 @@ def create_paypal_user_handler(event, _):
     """
     Lambda handler to create a new PayPal user.
     """
+
+    user_id = event["user_id"]
+    paypal_email = event["paypal_email"]
     paypal_user_service = PayPalUserService()
-    body = event["body"]
-    user_id = body["user_id"]
-    paypal_email = body["paypal_email"]
 
     logger.info("Received request to create PayPal user for user_id: %s", user_id)
 

@@ -3,9 +3,9 @@ from src.apis.api_requests import get_call, make_request
 
 ssm = boto3.client("ssm")
 
-# X_API_KEY = ssm.get_parameter(Name="/api/bubble", WithDecryption=True)["Parameter"][
-#     "Value"
-# ]
+X_API_KEY = ssm.get_parameter(Name="/api/bubble", WithDecryption=True)["Parameter"][
+    "Value"
+]
 
 BUBBLE_BASE_URL = "https://makeuity.com/version-test/api/1.1/obj/"
 
@@ -27,7 +27,7 @@ class BubbleApiOperations:
 
     def _construct_headers(self):
         return {
-            "x-api-key": "59c96877b645605213b97af46b7203fa",  # Put in param Store!! soon!!
+            "x-api-key": X_API_KEY,
             "Content-Type": "application/json",
         }
 
