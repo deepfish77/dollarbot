@@ -182,3 +182,21 @@ def get_failed_payouts_for_user(user_id):
     except Exception as e:
         logger.error("Failed to retrieve failed PayPal payouts for user: %s, error: %s", user_id, e)
         return None
+
+
+def update_paypal_payout_status(payout_id, new_status):
+    """
+    Updates the status of a PayPal payout in the database.
+    """
+    query = f"""
+        UPDATE bots.payouts
+        SET status = '{new_status}', created_at = CURRENT_TIMESTAMP
+        WHERE payout_id = '{payout_id}';
+    """
+    try:
+        rds_db.update_records(query)
+        logger.info("Successfully updated payout status for payout_id: %s to %s", payout_id, new_status)
+        return True
+    except Exception as e:
+        logger.error("Failed to update payout status for payout_id: %s, error: %s", payout_id, e)
+        return False

@@ -3,7 +3,6 @@ import logging
 from src.queries.paypal_queries import (
     create_paypal_transaction_query,
     update_paypal_transaction_status_query,
-    log_failed_paypal_payout_query,
     log_paypal_dispute_query,
 )
 
@@ -102,7 +101,9 @@ class PayPalService:
         Handle a PayPal dispute and log it in the database.
         """
         try:
-            log_paypal_dispute_query(dispute_id, user_id, transaction_id, "open", reason)
+            log_paypal_dispute_query(
+                dispute_id, user_id, transaction_id, "open", reason
+            )
             logger.info(
                 "Logged PayPal dispute with dispute_id: %s for transaction_id: %s",
                 dispute_id,
